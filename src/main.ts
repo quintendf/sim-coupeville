@@ -62,6 +62,14 @@ class TownScene extends Phaser.Scene {
     const [wx, wy] = toScreen(wharf[0], wharf[1] - 120);
     cam.centerOn(wx, wy); cam.setZoom(1.6);
     cam.setBackgroundColor(0x4a7f9c);
+    // debug helpers: ?b=<osm id>&z=<zoom> aims the camera at a building; ?outlines=1 or the F key shows footprints; ?t=<hour> fixes the clock
+    const q = new URLSearchParams(location.search);
+    const focus = this.bld.byId.get(Number(q.get('b')));
+    if (focus) { const [fx, fy] = toScreen(focus.x, focus.y, 0); cam.centerOn(fx, fy); }
+    if (q.get('z')) cam.setZoom(Phaser.Math.Clamp(parseFloat(q.get('z')!), 0.35, 5));
+    if (q.get('outlines')) this.bld.showOutlines(true);
+    if (q.get('t')) { this.live = false; this.tod = parseFloat(q.get('t')!); }
+    this.input.keyboard?.on('keydown-F', () => this.bld.showOutlines(!this.bld.outlines));
 
     // tint overlay for time of day (multiply)
     this.tint = this.add.rectangle(0, 0, 10, 10, 0xffffff, 1).setScrollFactor(0).setOrigin(0).setDepth(1e9).setBlendMode(Phaser.BlendModes.MULTIPLY);
@@ -92,7 +100,7 @@ class TownScene extends Phaser.Scene {
     live.onclick = () => { this.live = !this.live; live.setAttribute('aria-pressed', String(this.live)); };
     tod.oninput = () => { this.live = false; live.setAttribute('aria-pressed', 'false'); this.tod = parseFloat(tod.value); };
     $('loading').remove();
-    $('subtitle').textContent = `${this.town.buildings.length} buildings · ${this.town.buildings.filter(b => b.hero).length} named · placeholder art`;
+    $('subtitle').textContent = `${this.town.buildings.length} buildings · ${this.town.buildings.filter(b => b.hero).length} named · ${Object.keys(this.manifest).length} real sprites`;
   }
   worldOf(lon: number, lat: number): [number, number] { const m = this.town.meta; return [(lon - m.origin[0]) * m.kx, (lat - m.origin[1]) * m.ky]; }
   layout() { const { width, height } = this.scale; this.tint.setSize(width, height); }

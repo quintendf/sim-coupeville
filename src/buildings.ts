@@ -6,6 +6,7 @@ export interface SpriteEntry {
   file: string;            // relative to /sprites/
   anchor: [number, number]; // pixel in the image that sits on the footprint center at ground level
   ppm: number;             // pixels per meter the sprite was drawn at (horizontal ground scale, iso)
+  pad?: [number, number];  // ground pad extents in meters [along x (east), along y (north)]; unnamed buildings under the pad are hidden
   sign?: [number, number, number, number]; // sign band rect in image pixels, for name overlay
   night?: string;          // optional lit-windows variant
 }
@@ -62,13 +63,41 @@ export function placeholderCanvas(b: Building, zoomScale = 1): { canvas: HTMLCan
 export class Buildings {
   sprites = new Map<number, Phaser.GameObjects.Image>();
   byId = new Map<number, Building>();
+  outlines?: Phaser.GameObjects.Graphics;
+  /** Debug: draw footprint rectangles (ground, red) and the anchor cross for hero and sprite buildings. */
+  showOutlines(on: boolean) {
+    if (!on) { this.outlines?.destroy(); this.outlines = undefined; return; }
+    if (this.outlines) return;
+    const g = this.scene.add.graphics().setDepth(1e8);
+    for (const b of this.town.buildings) {
+      const has = !!this.manifest[String(b.id)];
+      if (!has && !b.hero) continue;
+      const pts = footprintCorners(b).map(([x, y]) => { const [a, c] = toScreen(x, y, 0); return new Phaser.Geom.Point(a, c); });
+      g.lineStyle(has ? 1.2 : 0.6, has ? 0xff2020 : 0xffe040, has ? 1 : 0.7);
+      g.strokePoints(pts, true);
+      if (has) { const [cx, cy] = toScreen(b.x, b.y, 0); g.lineBetween(cx - 4, cy, cx + 4, cy); g.lineBetween(cx, cy - 4, cx, cy + 4); }
+    }
+    this.outlines = g;
+  }
   constructor(public scene: Phaser.Scene, public town: Town, public manifest: Manifest, public onPick: (b: Building) => void) {
     for (const b of town.buildings) this.byId.set(b.id, b);
   }
   /** Create all building images. Real sprites (from the manifest) replace placeholders. */
+  /** Unnamed buildings whose center sits under a real sprite's ground pad (the art already shows that ground). */
+  private claimed(): Set<number> {
+    const out = new Set<number>();
+    const pads = Object.keys(this.manifest).map(id => ({ b: this.byId.get(Number(id)), e: this.manifest[id] })).filter(p => p.b && p.e.pad) as { b: Building; e: SpriteEntry }[];
+    for (const b of this.town.buildings) {
+      if (b.n.length || this.manifest[String(b.id)]) continue;
+      for (const { b: h, e } of pads) if (Math.abs(b.x - h.x) <= e.pad![0] / 2 && Math.abs(b.y - h.y) <= e.pad![1] / 2) { out.add(b.id); break; }
+    }
+    return out;
+  }
   build() {
     const tex = this.scene.textures;
+    const hidden = this.claimed();
     for (const b of this.town.buildings) {
+      if (hidden.has(b.id)) continue;
       const entry = this.manifest[String(b.id)];
       const [sx, sy] = toScreen(b.x, b.y, 0);
       let img: Phaser.GameObjects.Image;

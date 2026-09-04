@@ -1,1 +1,86 @@
-{}
+{
+ "270277275": {
+  "file": "b-270277275.png",
+  "anchor": [
+   383.7,
+   442.1
+  ],
+  "ppm": 19.952,
+  "pad": [
+   20.4,
+   18.0
+  ],
+  "src": "01-haller-house.png",
+  "note": "Haller House"
+ },
+ "270277279": {
+  "file": "b-270277279.png",
+  "anchor": [
+   383.7,
+   439.6
+  ],
+  "ppm": 24.931,
+  "pad": [
+   20.2,
+   10.6
+  ],
+  "src": "02-tobys-tavern.png",
+  "note": "Toby's Tavern"
+ },
+ "452151625": {
+  "file": "b-452151625.png",
+  "anchor": [
+   383.7,
+   437.7
+  ],
+  "ppm": 8.707,
+  "pad": [
+   34.3,
+   53.8
+  ],
+  "src": "03-coupeville-methodist-church.png",
+  "note": "Coupeville United Methodist Church"
+ },
+ "611258856": {
+  "file": "b-611258856.png",
+  "anchor": [
+   383.7,
+   342.5
+  ],
+  "ppm": 7.811,
+  "pad": [
+   68.7,
+   29.5
+  ],
+  "src": "04-island-county-courthouse.png",
+  "note": "Island County Courthouse (Administration Building)"
+ },
+ "270768567": {
+  "file": "b-270768567.png",
+  "anchor": [
+   378.2,
+   307.5
+  ],
+  "ppm": 11.399,
+  "pad": [
+   31.3,
+   35.1
+  ],
+  "src": "05-coupeville-library.png",
+  "note": "Coupeville Library"
+ },
+ "270276422": {
+  "file": "b-270276422.png",
+  "anchor": [
+   383.7,
+   226.6
+  ],
+  "ppm": 3.148,
+  "pad": [
+   148.0,
+   95.7
+  ],
+  "src": "06-whidbeyhealth-medical-center.png",
+  "note": "WhidbeyHealth Medical Center"
+ }
+}
